@@ -6,10 +6,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
-public class Number {
+public class DrawResult {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int index;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int idx;  // 고유 ID (자동 증가)
+
     private int number1;
     private int number2;
     private int number3;
@@ -17,12 +19,24 @@ public class Number {
     private int number5;
     private int number6;
 
-    public int getIndex() {
-        return index;
+    // ✅ 기본 생성자 추가 (JPA에서 필수)
+    public DrawResult() {}
+
+    public DrawResult(int number1, int number2, int number3, int number4, int number5, int number6) {
+        this.number1 = number1;
+        this.number2 = number2;
+        this.number3 = number3;
+        this.number4 = number4;
+        this.number5 = number5;
+        this.number6 = number6;
     }
 
-    public void setIndex(int index) {
-        this.index = index;
+    public int getIdx() {
+        return idx;
+    }
+
+    public void setIdx(int idx) {
+        this.idx = idx;
     }
 
     public int getNumber1() {
