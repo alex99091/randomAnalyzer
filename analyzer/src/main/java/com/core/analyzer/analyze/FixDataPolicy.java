@@ -84,7 +84,7 @@ public class FixDataPolicy implements HandleData{
                     box.getBox3() == check[2] &&
                     box.getBox4() == check[3] &&
                     box.getBox5() == check[4]) {
-                int previousIdx = box.getIdx() - 1;
+                int previousIdx = box.getIdx() + 1;
                 if (previousIdx > 0) { // 음수나 0 방지
                     targetIdxList.add(previousIdx);
                 }
