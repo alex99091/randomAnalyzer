@@ -42,11 +42,11 @@ public class FixDataPolicy implements HandleData{
             int box1 = 0, box2 = 0, box3 = 0, box4 = 0, box5 = 0;
 
             for (int num : numbers) {
-                if (num >= 1 && num <= 10) box1++;
-                else if (num <= 20) box2++;
-                else if (num <= 30) box3++;
-                else if (num <= 40) box4++;
-                else if (num <= 50) box5++;
+                if (num >= 1 && num <= 9) box1++;
+                else if (num <= 18) box2++;
+                else if (num <= 27) box3++;
+                else if (num <= 36) box4++;
+                else if (num <= 45) box5++;
             }
 
             resultList.add(new BoxResult(dr.getIdx(), box1, box2, box3, box4, box5));

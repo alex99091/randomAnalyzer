@@ -5,11 +5,11 @@ import java.util.*;
 public class Generator {
 
     private static final Map<Integer, int[]> BOX_RANGES = Map.of(
-            0, new int[]{1, 10},
-            1, new int[]{11, 20},
-            2, new int[]{21, 30},
-            3, new int[]{31, 40},
-            4, new int[]{41, 45}
+            0, new int[]{1, 9},
+            1, new int[]{10, 18},
+            2, new int[]{19, 27},
+            3, new int[]{28, 36},
+            4, new int[]{37, 45}
     );
 
     // 1게임 생성 (중복 없이)

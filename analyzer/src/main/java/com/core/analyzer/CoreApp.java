@@ -9,11 +9,13 @@ import com.core.analyzer.drawResult.DrawResultServiceImpl;
 import com.core.analyzer.dto.DrawWithBoxPattern;
 import com.core.analyzer.evaluate.AnalyzerEvaluator;
 import com.core.analyzer.generator.Generator;
+import com.core.analyzer.logic.PatternAnalyzer;
 import com.core.analyzer.similarity.CosineSimilarity;
 import com.core.analyzer.similarity.L1Similarity;
 import com.core.analyzer.similarity.L2Similarity;
 import com.core.analyzer.similarity.SimilarityAnalyzer;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class CoreApp {
@@ -58,65 +60,75 @@ public class CoreApp {
 
         // 7. 유사도 분석 실행
         System.out.println("==== 🎯 가장 유사한 박스 패턴 찾기 ====");
+        int[] checkPattern = check;
 
-        // 분석 대상 패턴 (예: 현재 check와 비슷한 패턴 찾기)
-        int[] targetPattern = check;
-
-        // L1 분석기
         SimilarityAnalyzer l1Analyzer = new SimilarityAnalyzer(new L1Similarity());
-        DrawWithBoxPattern l1Match = l1Analyzer.findMostSimilar(targetPattern, mapped);
-        System.out.println("📏 L1 유사도 결과: " + l1Match);
-
-        // L2 분석기
         SimilarityAnalyzer l2Analyzer = new SimilarityAnalyzer(new L2Similarity());
-        DrawWithBoxPattern l2Match = l2Analyzer.findMostSimilar(targetPattern, mapped);
-        System.out.println("📐 L2 유사도 결과: " + l2Match);
-
-        // Cosine 분석기
         SimilarityAnalyzer cosineAnalyzer = new SimilarityAnalyzer(new CosineSimilarity());
-        DrawWithBoxPattern cosineMatch = cosineAnalyzer.findMostSimilar(targetPattern, mapped);
+
+        DrawWithBoxPattern l1Match = l1Analyzer.findMostSimilar(checkPattern, mapped);
+        DrawWithBoxPattern l2Match = l2Analyzer.findMostSimilar(checkPattern, mapped);
+        DrawWithBoxPattern cosineMatch = cosineAnalyzer.findMostSimilar(checkPattern, mapped);
+
+        System.out.println("📏 L1 유사도 결과: " + l1Match);
+        System.out.println("📐 L2 유사도 결과: " + l2Match);
         System.out.println("🧭 Cosine 유사도 결과: " + cosineMatch);
 
-        // 8. 분석결과를 바탕으로 번호생성기
-        Generator generator = new Generator();
+        // 8. 평가 점수 계산
+        double l1Score = AnalyzerEvaluator.evaluate(l1Match.getIdx(), boxResults, toIntArray(l1Match.getBoxPattern()));
+        double l2Score = AnalyzerEvaluator.evaluate(l2Match.getIdx(), boxResults, toIntArray(l2Match.getBoxPattern()));
+        double cosineScore = AnalyzerEvaluator.evaluate(cosineMatch.getIdx(), boxResults, toIntArray(cosineMatch.getBoxPattern()));
 
-        // 평가: 다음 회차 박스패턴과 얼마나 유사한가 (작을수록 좋음)
-        double l1Score = AnalyzerEvaluator.evaluate(
-                l1Match.getIdx(),
-                boxResults,
-                l1Match.getBoxPattern().stream().mapToInt(i -> i).toArray()
-        );
+        // 9. 연속 등장 패턴 확인 및 가중치 반영
+        // 먼저 idx 오름차순 정렬
+        mapped.sort(Comparator.comparingInt(DrawWithBoxPattern::getIdx));
 
-        double l2Score = AnalyzerEvaluator.evaluate(
-                l2Match.getIdx(),
-                boxResults,
-                l2Match.getBoxPattern().stream().mapToInt(i -> i).toArray()
-        );
+        // 맨 끝에서부터 연속되는 패턴 계산
+        int streakCount = 1;
+        DrawWithBoxPattern streakMatch = mapped.get(mapped.size() - 1);
+        List<Integer> lastPattern = streakMatch.getBoxPattern();
 
-        double cosineScore = AnalyzerEvaluator.evaluate(
-                cosineMatch.getIdx(),
-                boxResults,
-                cosineMatch.getBoxPattern().stream().mapToInt(i -> i).toArray()
-        );
-
-        if (l1Score <= l2Score && l1Score <= cosineScore) {
-            System.out.println("✅ L1 분석기 선택됨 (예측 점수: " + l1Score + ")");
-            targetPattern = l1Match.getBoxPattern().stream().mapToInt(i -> i).toArray();
-        } else if (l2Score <= cosineScore) {
-            System.out.println("✅ L2 분석기 선택됨 (예측 점수: " + l2Score + ")");
-            targetPattern = l2Match.getBoxPattern().stream().mapToInt(i -> i).toArray();
-        } else {
-            System.out.println("✅ Cosine 분석기 선택됨 (예측 점수: " + cosineScore + ")");
-            targetPattern = cosineMatch.getBoxPattern().stream().mapToInt(i -> i).toArray();
+        for (int i = mapped.size() - 2; i >= 0; i--) {
+            if (mapped.get(i).getBoxPattern().equals(lastPattern)) {
+                streakCount++;
+            } else {
+                break;
+            }
         }
 
-        // 번호 생성
+        System.out.println("📌 가장 긴 연속 패턴 등장: " + streakCount + "회");
+        System.out.println("🔥 연속 등장 패턴 기반 분석 대상: " + streakMatch);
+
+        int[] targetPattern;
+        Generator generator = new Generator();
+
+        if (streakCount >= 2) {
+            System.out.println("✅ 연속 등장 패턴 우선 적용 (스트릭 " + streakCount + "회)");
+            targetPattern = toIntArray(streakMatch.getBoxPattern());
+        } else {
+            // 기존 분석기 결과 선택
+            if (l1Score <= l2Score && l1Score <= cosineScore) {
+                System.out.println("✅ L1 분석기 선택됨 (예측 점수: " + l1Score + ")");
+                targetPattern = toIntArray(l1Match.getBoxPattern());
+            } else if (l2Score <= cosineScore) {
+                System.out.println("✅ L2 분석기 선택됨 (예측 점수: " + l2Score + ")");
+                targetPattern = toIntArray(l2Match.getBoxPattern());
+            } else {
+                System.out.println("✅ Cosine 분석기 선택됨 (예측 점수: " + cosineScore + ")");
+                targetPattern = toIntArray(cosineMatch.getBoxPattern());
+            }
+        }
+
+        // 10. 최종 번호 생성
         List<List<Integer>> games = generator.generateMultiple(targetPattern, 5);
 
         System.out.println("🎰 5게임 자동 생성 결과:");
         for (int i = 0; i < games.size(); i++) {
             System.out.println("Game " + (i + 1) + ": " + games.get(i));
         }
+    }
 
+    private static int[] toIntArray(List<Integer> list) {
+        return list.stream().mapToInt(i -> i).toArray();
     }
 }
