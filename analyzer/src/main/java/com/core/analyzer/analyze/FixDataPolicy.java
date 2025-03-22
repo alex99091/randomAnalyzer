@@ -1,14 +1,10 @@
-package com.random.analyzer.data;
+package com.core.analyzer.analyze;
 
-import com.random.analyzer.model.DrawResult;
-import java.util.ArrayList;
-import java.util.List;
+import com.core.analyzer.drawResult.DrawResult;
 
-public class DataStore {
-   public static final List<DrawResult> DRAW_RESULTS = new ArrayList<>();
+public class FixDataPolicy implements HandleData{
 
-   // 6개의 숫자가 공백으로 구분된 로또 데이터
-   private static final String rowData = """
+    private static final String rowData = """
          1 10 23 29 33 37 40
          2 9 13 21 25 32 42
          3 11 16 19 21 27 31
@@ -1175,28 +1171,27 @@ public class DataStore {
          1164 2 13 15 16 33 43
    """;
 
-   static {
-      parseRowData();
-   }
+    @Override
+    public DrawResult readData(String rowData, DrawResult drawResult) {
+        rowData = rowData;
 
-   private static void parseRowData() {
-      String[] lines = rowData.split("\n");
+        String[] lines = rowData.split("\n");
 
-      for (String line : lines) {
-         String[] numbers = line.trim().split("\\s+"); // 공백 기준 분리
+        for (String line : lines) {
+            String[] numbers = line.trim().split("\\s+");
+            if (numbers.length != 7) continue;
 
-         if (numbers.length != 7) continue; // 회차번호 + 6개 숫자 = 7개
+            return new DrawResult(
+                    Integer.parseInt(numbers[0]),
+                    Integer.parseInt(numbers[1]),
+                    Integer.parseInt(numbers[2]),
+                    Integer.parseInt(numbers[3]),
+                    Integer.parseInt(numbers[4]),
+                    Integer.parseInt(numbers[5]),
+                    Integer.parseInt(numbers[6])
+            );
+        }
 
-         DrawResult result = new DrawResult(
-                 Integer.parseInt(numbers[0]), // idx
-                 Integer.parseInt(numbers[1]),
-                 Integer.parseInt(numbers[2]),
-                 Integer.parseInt(numbers[3]),
-                 Integer.parseInt(numbers[4]),
-                 Integer.parseInt(numbers[5]),
-                 Integer.parseInt(numbers[6])
-         );
-         DRAW_RESULTS.add(result);
-      }
-   }
+        return null;
+    }
 }

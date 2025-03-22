@@ -1,4 +1,4 @@
-package com.random.analyzer;
+package com.core.analyzer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

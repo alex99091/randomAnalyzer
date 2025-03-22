@@ -1,26 +1,13 @@
-package com.random.analyzer.model;
+package com.core.analyzer.drawResult;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
 public class DrawResult {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idx;  // 고유 ID (자동 증가)
-
+    private int idx;
     private int number1;
     private int number2;
     private int number3;
     private int number4;
     private int number5;
     private int number6;
-
-    // ✅ 기본 생성자 추가 (JPA에서 필수)
-    public DrawResult() {}
 
     public DrawResult(int idx, int number1, int number2, int number3, int number4, int number5, int number6) {
         this.idx = idx;

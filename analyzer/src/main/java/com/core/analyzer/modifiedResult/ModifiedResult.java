@@ -1,33 +1,28 @@
-package com.random.analyzer.model;
+package com.core.analyzer.modifiedResult;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
-@Entity
-public class NumberRangeCount {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idx;
-
+public class ModifiedResult {
+    private int resultId;
     private int box1;
     private int box2;
     private int box3;
     private int box4;
     private int box5;
 
-    public NumberRangeCount() {
-
+    public ModifiedResult(int resultId, int box1, int box2, int box3, int box4, int box5) {
+        this.resultId = resultId;
+        this.box1 = box1;
+        this.box2 = box2;
+        this.box3 = box3;
+        this.box4 = box4;
+        this.box5 = box5;
     }
 
-    public int getIdx() {
-        return idx;
+    public int getResultId() {
+        return resultId;
     }
 
-    public void setIdx(int idx) {
-        this.idx = idx;
+    public void setResultId(int resultId) {
+        this.resultId = resultId;
     }
 
     public int getBox1() {

@@ -1,4 +1,4 @@
-package com.random.analyzer;
+package com.core.analyzer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
