@@ -9,6 +9,8 @@ public class DrawResult {
     private int number5;
     private int number6;
 
+    public DrawResult() {}
+
     public DrawResult(int idx, int number1, int number2, int number3, int number4, int number5, int number6) {
         this.idx = idx;
         this.number1 = number1;
@@ -18,6 +20,20 @@ public class DrawResult {
         this.number5 = number5;
         this.number6 = number6;
     }
+
+    @Override
+    public String toString() {
+        return "DrawResult{" +
+                "idx=" + idx +
+                ", number1=" + number1 +
+                ", number2=" + number2 +
+                ", number3=" + number3 +
+                ", number4=" + number4 +
+                ", number5=" + number5 +
+                ", number6=" + number6 +
+                '}';
+    }
+
 
     public int getIdx() {
         return idx;

@@ -2,6 +2,8 @@ package com.core.analyzer.analyze;
 
 import com.core.analyzer.drawResult.DrawResult;
 
+import java.util.*;
+
 public class FixDataPolicy implements HandleData{
 
     private static final String rowData = """
@@ -1171,17 +1173,18 @@ public class FixDataPolicy implements HandleData{
          1164 2 13 15 16 33 43
    """;
 
+    public static String getRowData() {
+        return rowData;
+    }
+
     @Override
-    public DrawResult readData(String rowData, DrawResult drawResult) {
-        rowData = rowData;
-
+    public List<DrawResult> readData(String rowData) {
+        List<DrawResult> results = new ArrayList<>();
         String[] lines = rowData.split("\n");
-
         for (String line : lines) {
             String[] numbers = line.trim().split("\\s+");
             if (numbers.length != 7) continue;
-
-            return new DrawResult(
+            results.add(new DrawResult(
                     Integer.parseInt(numbers[0]),
                     Integer.parseInt(numbers[1]),
                     Integer.parseInt(numbers[2]),
@@ -1189,9 +1192,8 @@ public class FixDataPolicy implements HandleData{
                     Integer.parseInt(numbers[4]),
                     Integer.parseInt(numbers[5]),
                     Integer.parseInt(numbers[6])
-            );
+            ));
         }
-
-        return null;
+        return results;
     }
 }
