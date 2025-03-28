@@ -219,5 +219,38 @@ public class FixDataPolicy implements HandleData {
                 );
     }
 
+    @Override
+    public Map.Entry<List<Integer>, List<Integer>> findRarestBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults) {
+        int maxTryBack = 10; // 최대 10회 전까지 시도
+        int recentIdx = drawResults.get(drawResults.size() - 1).getIdx();
+
+        for (int offset = 0; offset <= maxTryBack; offset++) {
+            int targetIdx = recentIdx - offset;
+
+            // 대상 회차 추출
+            Optional<DrawResult> maybeTargetDraw = drawResults.stream()
+                    .filter(dr -> dr.getIdx() == targetIdx)
+                    .findFirst();
+
+            if (maybeTargetDraw.isEmpty()) continue;
+
+            // 해당 회차 기준 boxPattern 추출
+            List<Integer> pattern = extractLastBoxPattern(List.of(maybeTargetDraw.get()), boxResults);
+
+            // 일치하는 회차 찾기
+            List<Integer> matchingIdxList = findMatchingIdxByBoxPattern(boxResults, pattern);
+
+            // 희소성 조건 만족 시 반환
+            if (matchingIdxList.size() <= 3) {
+                System.out.println("🎯 희소 패턴 발견 → 기준 회차: " + targetIdx + ", 등장 횟수: " + matchingIdxList.size());
+                return Map.entry(pattern, matchingIdxList);
+            }
+        }
+
+        System.out.println("❌ 희소한 패턴을 찾지 못했습니다.");
+        return Map.entry(Collections.emptyList(), Collections.emptyList());
+    }
+
+
 
 }

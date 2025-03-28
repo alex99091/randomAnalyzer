@@ -5,6 +5,7 @@ import com.core.analyzer.drawResult.DrawResult;
 import com.core.analyzer.dto.DrawWithBoxPattern;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HandleData {
     List<DrawResult> readData(String rowData);
@@ -15,4 +16,5 @@ public interface HandleData {
     List<Integer> extractLastBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults);
     List<Integer> findMatchingIdxByBoxPattern(List<BoxResult> boxResults, List<Integer> boxPattern);
     void printLastDrawAndBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults);
+    Map.Entry<List<Integer>, List<Integer>> findRarestBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults);
 }

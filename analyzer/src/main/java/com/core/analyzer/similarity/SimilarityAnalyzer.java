@@ -11,9 +11,10 @@ public class SimilarityAnalyzer {
         this.strategy = strategy;
     }
 
-    public DrawWithBoxPattern findMostSimilar(int[] target, List<DrawWithBoxPattern> list) {
+    // 점수와 함께 반환
+    public Result findMostSimilarWithScore(int[] target, List<DrawWithBoxPattern> list) {
         DrawWithBoxPattern best = null;
-        double bestScore = strategy instanceof CosineSimilarity ? -1 : Double.MAX_VALUE;
+        double bestScore = (strategy instanceof CosineSimilarity) ? -1 : Double.MAX_VALUE;
 
         for (DrawWithBoxPattern d : list) {
             double score = strategy.calculate(target, d.getBoxPattern());
@@ -25,7 +26,14 @@ public class SimilarityAnalyzer {
             }
         }
 
-        return best;
+        return new Result(best, bestScore);
     }
-}
 
+    // 기존 방식도 유지
+    public DrawWithBoxPattern findMostSimilar(int[] target, List<DrawWithBoxPattern> list) {
+        return findMostSimilarWithScore(target, list).pattern();
+    }
+
+    // 내부 record for result
+    public record Result(DrawWithBoxPattern pattern, double score) {}
+}
