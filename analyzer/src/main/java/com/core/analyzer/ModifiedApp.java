@@ -19,7 +19,9 @@ public class ModifiedApp {
         List<BoxResult> boxResults = policy.readBoxData(parsedResult);
 
         // === 테스트 패턴 ===
-        int[] check = {1, 3, 0, 1, 1};
+        int[] check = {0, 0, 4, 2, 0};
+        //int[] check = {1, 3, 0, 1, 1};
+        //int[] check = {0, 2, 2, 0, 2};
 
         // === 필터링 및 매핑 ===
         List<DrawResult> filtered = policy.filterBoxCheck(parsedResult, boxResults, check);

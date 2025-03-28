@@ -1167,6 +1167,7 @@ public class RowData {
          1162 2 12 20 24 34 42
          1163 20 21 22 25 28 29
          1164 2 13 15 16 33 43
+         1165 17 18 23 25 38 39
    """;
 
     public static String getRowData() {

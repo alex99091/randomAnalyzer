@@ -12,5 +12,7 @@ public interface HandleData {
     List<DrawResult> filterBoxCheck(List<DrawResult> drawResults, List<BoxResult> boxResults, int[] check);
     List<DrawResult> fixedBoxData(List<DrawResult> drawResults, List<BoxResult> boxResults, int[] check);
     List<DrawWithBoxPattern> mapToBoxPatternResult(List<DrawResult> drawResults, List<BoxResult> boxResults);
-
+    List<Integer> extractLastBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults);
+    List<Integer> findMatchingIdxByBoxPattern(List<BoxResult> boxResults, List<Integer> boxPattern);
+    void printLastDrawAndBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults);
 }
