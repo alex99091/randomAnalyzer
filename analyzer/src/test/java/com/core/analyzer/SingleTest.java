@@ -32,7 +32,7 @@ public class SingleTest {
         fixDataPolicy = new FixDataPolicy();
         List<DrawResult> drawResults = new ArrayList<>();
 
-        drawResults.add(new DrawResult(1166, 7, 17, 18, 28, 30, 45));
+        drawResults.add(new DrawResult(1167, 4, 7, 12, 14, 22, 23));
 
         List<BoxResult> resultList = new ArrayList<>();
 
@@ -41,7 +41,9 @@ public class SingleTest {
 
         List<Integer> print = new ArrayList<>();
 
-        print = generator.generateSingle(new int[]{0, 1, 2, 2, 0, 0, 1});
+        for (int i = 0; i < 5; i ++) {
+            print = generator.generateSingle(new int[]{0, 2, 2, 2, 0, 0, 0});
+        }
 
         System.out.println(print);
 
