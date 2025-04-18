@@ -2,10 +2,8 @@ package com.core.analyzer.engine.similarity;
 
 import java.util.List;
 
-public class L1Similarity implements SimilarityStrategy {
-    private static final double ZERO_PENALTY_THRESHOLD = 0.6; // 60% 이상 0일 경우 패널티 부여
-    private static final double ZERO_PENALTY_WEIGHT = 0.5; // 패널티 가중치
 
+public class L1Similarity implements SimilarityStrategy {
     @Override
     public double calculate(List<Double> target, List<Double> candidate) {
         double sum = 0;
@@ -13,13 +11,10 @@ public class L1Similarity implements SimilarityStrategy {
             sum += Math.abs(target.get(i) - candidate.get(i));
         }
 
-        // zero 비율 기반 penalty 부여
-        long zeroCount = candidate.stream().filter(d -> d == 0.0).count();
-        double zeroRatio = zeroCount / (double) candidate.size();
-        double penalty = zeroRatio > ZERO_PENALTY_THRESHOLD ? (zeroRatio * ZERO_PENALTY_WEIGHT) : 0;
-
-        return sum + penalty;
+        // 정규화: 최대 차이는 (가정) 각 항목 최대 5 범위 → 총 길이 * 5
+        double maxDiff = target.size() * 5.0;
+        double score = 1.0 - (sum / maxDiff);
+        return Math.max(0, Math.min(1, score));  // 0 ~ 1 사이 보정
     }
 }
-
 

@@ -1,6 +1,7 @@
 package com.core.analyzer.app;
 
 import com.core.analyzer.config.AppConfig;
+import com.core.analyzer.engine.similarity.*;
 import com.core.analyzer.service.analyze.FixDataPolicy;
 import com.core.analyzer.model.data.RowData;
 import com.core.analyzer.model.boxResult.BoxResult;
@@ -8,10 +9,6 @@ import com.core.analyzer.domain.draw.DrawResult;
 import com.core.analyzer.domain.draw.DrawResultService;
 import com.core.analyzer.domain.pattern.DrawWithBoxPattern;
 import com.core.analyzer.engine.generate.Generator;
-import com.core.analyzer.engine.similarity.CosineSimilarity;
-import com.core.analyzer.engine.similarity.L1Similarity;
-import com.core.analyzer.engine.similarity.L2Similarity;
-import com.core.analyzer.engine.similarity.SimilarityAnalyzer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,51 +50,44 @@ public class CoreApp {
         System.out.println("📌 해당 패턴과 일치하는 회차 정보: " + matchingIdxList.size() + "개");
         printDraws(parsedResult, matchingIdxList);
 
-        // 5. 희소한 패턴 자동 탐색 (최신 2개 회차 제외)
-        Map.Entry<List<Integer>, List<Integer>> rarestResult = fixDataPolicy.findRarestBoxPattern(truncatedResult, truncatedBox);
-        List<Integer> rarestPattern = rarestResult.getKey();
-        List<Integer> rarestIdxList = rarestResult.getValue();
-
-        if (!rarestPattern.isEmpty()) {
-            int baseIdx = rarestIdxList.stream().mapToInt(i -> i).max().orElse(-1);
-            System.out.println("패턴유사반복 재실행 " + rarestIdxList.size() + "회 → 기준 회차: " + baseIdx + ", 등장 횟수: " + rarestIdxList.size());
-            System.out.println("📦 희소한 BoxPattern: " + rarestPattern);
-            System.out.println("📌 해당 패턴과 일치하는 회차 정보: " + rarestIdxList.size() + "개");
-            printDraws(parsedResult, rarestIdxList);
-        } else {
-            System.out.println("❌ 희소한 패턴을 찾지 못했습니다.");
-            return;
+        // ⚠️ 참고 출력만 하고 분석은 계속 진행
+        if (matchingIdxList.size() <= 1) {
+            System.out.println("⚠️ 해당 패턴은 과거에 거의 등장하지 않았습니다. 그러나 유사도 분석을 계속 진행합니다.");
         }
 
-        // 6. 유사도 분석 (truncated 기준)
-        List<DrawWithBoxPattern> mappedRarest = fixDataPolicy.mapToBoxPatternResult(truncatedResult, truncatedBox);
+        // 5. 유사도 분석 (truncated 기준)
+        List<DrawWithBoxPattern> mapped = fixDataPolicy.mapToBoxPatternResult(truncatedResult, truncatedBox);
 
         SimilarityAnalyzer l1Analyzer = new SimilarityAnalyzer(new L1Similarity());
         SimilarityAnalyzer l2Analyzer = new SimilarityAnalyzer(new L2Similarity());
         SimilarityAnalyzer cosineAnalyzer = new SimilarityAnalyzer(new CosineSimilarity());
+        SimilarityAnalyzer hammingJaccardAnalyzer = new SimilarityAnalyzer(new HammingJaccardSimilarity());
 
-        int[] rarestTarget = toIntArray(rarestPattern);
-        SimilarityAnalyzer.Result l1 = l1Analyzer.findMostSimilarWithScore(rarestTarget, mappedRarest);
-        SimilarityAnalyzer.Result l2 = l2Analyzer.findMostSimilarWithScore(rarestTarget, mappedRarest);
-        SimilarityAnalyzer.Result cosine = cosineAnalyzer.findMostSimilarWithScore(rarestTarget, mappedRarest);
+        int[] target = toIntArray(lastBoxPattern);  // 최신 회차 기준 박스 패턴
+        SimilarityAnalyzer.Result l1 = l1Analyzer.findMostSimilarWithScore(target, mapped);
+        SimilarityAnalyzer.Result l2 = l2Analyzer.findMostSimilarWithScore(target, mapped);
+        SimilarityAnalyzer.Result cosine = cosineAnalyzer.findMostSimilarWithScore(target, mapped);
+        SimilarityAnalyzer.Result hammingJaccard = hammingJaccardAnalyzer.findMostSimilarWithScore(target, mapped);
 
         System.out.println("\n🧪 분석기 유사도 비교:");
         System.out.printf(" - L1 점수:      %.3f\n", l1.score());
         System.out.printf(" - L2 점수:      %.3f\n", l2.score());
         System.out.printf(" - Cosine 점수:  %.3f\n", cosine.score());
+        System.out.println(" - HammingJaccard 점수:  " + String.format("%.3f", hammingJaccard.score()));
 
         String best = (l1.score() <= l2.score() && l1.score() <= cosine.score()) ? "L1"
                 : (l2.score() <= cosine.score()) ? "L2"
                 : "Cosine";
         System.out.println("✅ 최적 분석기 선택됨: " + best);
 
-        // 7. 자동 생성기 결과 출력
+        // 6. 자동 생성기 결과 출력
         Generator generator = new Generator();
 
         Map<String, SimilarityAnalyzer.Result> resultMap = Map.of(
                 "L1", l1,
                 "L2", l2,
-                "Cosine", cosine
+                "Cosine", cosine,
+                "HammingJaccard", hammingJaccard
         );
 
         System.out.println("\n🎰 분석기별 5게임 자동 생성 결과:");

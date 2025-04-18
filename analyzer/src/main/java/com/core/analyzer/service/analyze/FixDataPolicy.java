@@ -236,5 +236,52 @@ public class FixDataPolicy implements HandleData {
         System.out.println("❌ 희소한 패턴을 찾지 못했습니다.");
         return Map.entry(Collections.emptyList(), Collections.emptyList());
     }
+
+    public Map.Entry<List<Integer>, List<Integer>> findMostFrequentBoxPattern(List<DrawResult> drawResults, List<BoxResult> boxResults) {
+        int maxTryBack = 10;
+        int recentIdx = drawResults.get(drawResults.size() - 1).getIdx();
+
+        Map<List<Integer>, List<Integer>> candidateMap = new HashMap<>();
+
+        for (int offset = 0; offset <= maxTryBack; offset++) {
+            int targetIdx = recentIdx - offset;
+
+            Optional<DrawResult> maybeTargetDraw = drawResults.stream()
+                    .filter(dr -> dr.getIdx() == targetIdx)
+                    .findFirst();
+
+            if (maybeTargetDraw.isEmpty()) continue;
+
+            // 해당 회차의 박스 패턴 추출
+            List<Integer> pattern = extractLastBoxPattern(List.of(maybeTargetDraw.get()), boxResults);
+
+            // 최신 회차보다 이전의 동일 패턴 회차들 탐색
+            List<Integer> matchingIdxList = findMatchingIdxByBoxPattern(
+                    boxResults.stream()
+                            .filter(b -> b.getIdx() < recentIdx) // 최신 회차 제외
+                            .collect(Collectors.toList()),
+                    pattern);
+
+            if (!matchingIdxList.isEmpty()) {
+                candidateMap.put(pattern, matchingIdxList);
+            }
+        }
+
+        if (candidateMap.isEmpty()) {
+            System.out.println("❌ 자주 등장한 패턴을 찾지 못했습니다.");
+            return Map.entry(Collections.emptyList(), Collections.emptyList());
+        }
+
+        // 가장 많이 등장한 패턴 선택
+        Map.Entry<List<Integer>, List<Integer>> maxEntry = candidateMap.entrySet().stream()
+                .max(Comparator.comparingInt(e -> e.getValue().size()))
+                .orElseThrow();
+
+        System.out.println("🎯 자주 등장한 패턴 발견 → 기준 회차: " + maxEntry.getValue().get(maxEntry.getValue().size() - 1) +
+                ", 등장 횟수: " + maxEntry.getValue().size());
+        return maxEntry;
+    }
+
+
 }
 

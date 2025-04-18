@@ -1170,6 +1170,7 @@ public class RowData {
          1165 17 18 23 25 38 39
          1166 6 7 27 29 38 45
          1167 14 23 25 27 29 42
+         1168 8 23 31 35 38 40
    """;
 
     public static String getRowData() {
