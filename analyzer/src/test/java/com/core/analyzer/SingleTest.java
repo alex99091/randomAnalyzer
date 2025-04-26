@@ -34,7 +34,7 @@ public class SingleTest {
 
 
         //drawResults.add(new DrawResult(1168, 8, 23, 31, 35, 38, 40));
-        drawResults.add(new DrawResult(704, 1, 4, 8, 23, 33, 42));
+        drawResults.add(new DrawResult(902, 7, 19, 23, 24, 36, 39));
 
         List<BoxResult> resultList = new ArrayList<>();
 
